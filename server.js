@@ -4,48 +4,36 @@ const bodyParser = require('body-parser');
 const port = 8000;
 const app = express();
 
+const User = require('./models/User');
+mongoose.connect('mongodb://localhost/intermediateNode');
+
 app.use(bodyParser.json());
 
 app.listen(port, () => {
   console.log(`server is listening on port:${port}`)
 })
 
-const User = require('./models/User');
-mongoose.connect('mongodb://localhost/intermediateNode');
-
-// CREATE
 app.post('/users', (req, res) => {
-  const createdUser = {
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password
-  };
-  User.create(createdUser, modelCallbackCreater(res));
+  const createdUser = { ...req.body };
+  User.create(createdUser, createModelCallback(res));
 });
 
 app.route('/users/:id')
-  // READ
   .get((req, res) => {
     const id = req.params.id;
-    User.findById(id, modelCallbackCreater(res));
+    User.findById(id, createModelCallback(res));
   })
-  // UPDATE
   .put((req, res) => {
     const id = req.params.id;
-    const updatedUser = {
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password
-    };
-    User.findByIdAndUpdate(id, updatedUser, { new: true }, modelCallbackCreater(res));
+    const updatedUser = { ...req.body };
+    User.findByIdAndUpdate(id, updatedUser, { new: true }, createModelCallback(res));
   })
-  // DELETE
   .delete((req, res) => {
     const id = req.params.id;
-    User.findByIdAndDelete(id, modelCallbackCreater(res));
+    User.findByIdAndDelete(id, createModelCallback(res));
   })
 
-const modelCallbackCreater = res => (err, data) => {
+const createModelCallback = res => (err, data) => {
   if (err) {
     res.json({ success: false, message: err });
     return;
