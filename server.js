@@ -20,48 +20,40 @@ app.post('/users', (req, res) => {
     email: req.body.email,
     password: req.body.password
   };
-  User.create(createdUser, (err, data) => {
-    if (err) {
-      res.json({ success: false, message: err });
-      return;
-    }
-    if (!data) {
-      res.json({ success: false, message: "Not found" });
-      return;
-    }
-    res.json({ success: true, data: data });
-  });
+  User.create(createdUser, modelCallbackCreater(res));
 });
 
 app.route('/users/:id')
   // READ
   .get((req, res) => {
-    User.findById(req.params.id, (err, data) => {
-      if (err) {
-        res.json({
-          success: false,
-          message: err
-        });
-        return;
-      }
-      if (!data) {
-        res.json({
-          success: false,
-          message: "Not found"
-        });
-        return;
-      }
-      res.json({
-        success: true,
-        data: data
-      });
-    });
+    const id = req.params.id;
+    User.findById(id, modelCallbackCreater(res));
   })
   // UPDATE
   .put((req, res) => {
-    // User.findByIdAndUpdate()
+    const id = req.params.id;
+    const updatedUser = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password
+    };
+    User.findByIdAndUpdate(id, updatedUser, { new: true }, modelCallbackCreater(res));
   })
   // DELETE
   .delete((req, res) => {
     // User.findByIdAndDelete()
   })
+
+const modelCallbackCreater = res => (err, data) => {
+  if (err) {
+    res.json({ success: false, message: err });
+    return;
+  }
+  if (!data) {
+    res.json({ success: false, message: "Not found" });
+    return;
+  }
+  res.json({
+    success: true, data: data
+  })
+};
