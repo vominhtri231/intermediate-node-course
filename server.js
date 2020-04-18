@@ -41,7 +41,8 @@ app.route('/users/:id')
   })
   // DELETE
   .delete((req, res) => {
-    // User.findByIdAndDelete()
+    const id = req.params.id;
+    User.findByIdAndDelete(id, modelCallbackCreater(res));
   })
 
 const modelCallbackCreater = res => (err, data) => {
